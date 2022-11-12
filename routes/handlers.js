@@ -26,11 +26,7 @@ export const createUserHandler = async (req, res) => {
 export const updateHandler = async (req, res) => {
   try {
     const { oldEmail, name, password } = req.body;
-    if (
-      oldEmail === undefined ||
-      newEmail === undefined ||
-      password === undefined
-    ) {
+    if (oldEmail === undefined || password === undefined) {
       throw new Error("Arguments Missing");
     }
     const user = await userModel.findOne({ email: oldEmail });
