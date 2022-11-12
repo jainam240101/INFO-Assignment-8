@@ -1,7 +1,10 @@
-import { userModel } from "../schemas/User";
+import { userModel, nameRegex } from "../schemas/User";
 import { encryptPassword } from "../utils/bcrypt";
 import { sendErrorResponse, sendSuccessResponse } from "../utils/response";
 import { passwordStrength } from "check-password-strength";
+
+const passwordRegex =
+  /^(?=.*[A-Z].*[A-Z])(?=.*[!@#$&*])(?=.*[0-9].*[0-9])(?=.*[a-z].*[a-z].*[a-z]).{8}$/;
 
 export const createUserHandler = async (req, res) => {
   try {
@@ -12,6 +15,14 @@ export const createUserHandler = async (req, res) => {
       throw new Error("Password Missing");
     } else if (name == undefined) {
       throw new Error("Name Missing");
+    }
+
+    if (!name.match(nameRegex)) {
+      throw new Error("Name Validation Failed");
+    }
+
+    if (password.match(passwordRegex)) {
+      throw new Error("Password is Weak");
     }
 
     const ans = passwordStrength(password).value;
