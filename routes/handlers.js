@@ -5,7 +5,7 @@ import { passwordStrength } from "check-password-strength";
 
 export const createUserHandler = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, name } = req.body;
     if (email === undefined || password === undefined) {
       throw new Error("Arguments Missing");
     }
@@ -14,6 +14,7 @@ export const createUserHandler = async (req, res) => {
     const hashPassword = await encryptPassword(password);
     const user = await userModel.create({
       email,
+      full_name: name,
       password: hashPassword,
     });
     sendSuccessResponse(res, user);
@@ -24,7 +25,7 @@ export const createUserHandler = async (req, res) => {
 
 export const updateHandler = async (req, res) => {
   try {
-    const { oldEmail, newEmail, password } = req.body;
+    const { oldEmail, name, password } = req.body;
     if (
       oldEmail === undefined ||
       newEmail === undefined ||
@@ -35,9 +36,14 @@ export const updateHandler = async (req, res) => {
     const user = await userModel.findOne({ email: oldEmail });
     if (user === null) throw new Error("User Not Found");
 
-    user.email = newEmail;
-    const hashPassword = await encryptPassword(password);
-    user.password = hashPassword;
+    if (password !== undefined) {
+      const hashPassword = await encryptPassword(password);
+      user.password = hashPassword;
+    }
+    if (name !== undefined) {
+      user.full_name = name;
+    }
+
     await user.save();
     sendSuccessResponse(res, user);
   } catch (error) {
